@@ -1,7 +1,11 @@
 import sys
+import os
+from mutagen.mp3 import EasyMP3
+from mutagen.flac import FLAC
+
 from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QRadioButton, QCheckBox,
                              QLineEdit, QPushButton, QListWidget, QApplication, QTextEdit,
-                             QFileDialog)
+                             QFileDialog, QMessageBox, QAbstractItemView)
 
 class Gui(QWidget):
     """Klasa zawierająca GUI projektu"""
@@ -10,8 +14,8 @@ class Gui(QWidget):
 
         super().__init__()
 
-        '''self.AudFormat = None
-        self.ChangeFileName = False
+        self.AudFormat = '.mp3'
+        '''self.ChangeFileName = False
         self.AddNumeration = False
         self.DirPath = None
         self.OrigArtist = None
@@ -45,14 +49,19 @@ class Gui(QWidget):
         self.setLayout(self.MainVBox)
 
         self.Mp3ChoiceRdBtn = QRadioButton('Mp3')
+        self.Mp3ChoiceRdBtn.clicked.connect(self.setMp3Format)
+        self.Mp3ChoiceRdBtn.clicked.connect(self.readDir)
         self.FlacChoiceRdBtn = QRadioButton('Flac')
-        self.ChangeFileNameChkBx = QCheckBox('Change files names?')
+        self.FlacChoiceRdBtn.clicked.connect(self.setFlacFormat)
+        self.FlacChoiceRdBtn.clicked.connect(self.readDir)
+        self.ChangeFileNameChkBx = QCheckBox('Change filenames?')
         self.AddNumerationChkBx = QCheckBox('Add track numbers?')
 
         self.SelectDirBtn = QPushButton('Select Dir')
         self.SelectDirBtn.clicked.connect(self.selectDir)
         self.DirPathLnEd = QLineEdit()
         self.DirPathLnEd.setReadOnly(True)
+        self.DirPathLnEd.textChanged.connect(self.readDir)
 
         self.OrigArtistLbl = QLabel('Original artist')
         self.OrigArtistLnEd = QLineEdit()
@@ -65,12 +74,15 @@ class Gui(QWidget):
         self.GenreLbl = QLabel('Genre')
         self.GenreLnEd = QLineEdit()
 
-        self.TrackTitleLbl = QLabel('Track title')
+        self.TrackTitleLbl = QLabel('Track titles')
         self.TrackTitleTxtEdt = QTextEdit()
+        self.TrackTitleTxtEdt.setStyleSheet('font: 10.5pt;')
         self.TrackLstLbl = QLabel('Track list')
         self.TrackTitleLstBx = QListWidget()
+        self.TrackTitleLstBx.setDragDropMode(QAbstractItemView.InternalMove)
 
         self.WorkBtn = QPushButton('Do your job')
+        self.WorkBtn.clicked.connect(self.changeTags)
         self.ExitBtn = QPushButton('Exit')
         self.ExitBtn.clicked.connect(self.close)
 
@@ -102,10 +114,12 @@ class Gui(QWidget):
         self.ButtonsHBox.addWidget(self.ExitBtn)
         self.ButtonsHBox.addWidget(self.WorkBtn)
 
+        self.ErrorDialog = QMessageBox()
+        self.ErrorDialog.setText('Number of titles must match number of files')
+
         self.setGeometry(300, 300, 800, 600)
         self.setWindowTitle('Tag renamer')
         self.show()
-
 
     def selectDir(self):
 
@@ -113,8 +127,63 @@ class Gui(QWidget):
         folder_path = dialog.getExistingDirectory(None, "Select directory")
         self.DirPathLnEd.setText(folder_path)
 
-if __name__ == '__main__':
+    def readDir(self):
+
+        self.TrackTitleLstBx.clear()
+        if self.DirPathLnEd.text() == '':
+            pass
+        else:
+            for file in os.listdir(self.DirPathLnEd.text()):
+                if file.endswith(self.AudFormat):
+                    self.TrackTitleLstBx.addItem(file)
+        print(self.DirPathLnEd.text())
+        print('==========================')
+
+    def setMp3Format(self):
+
+        self.AudFormat = '.mp3'
+        print(self.AudFormat)
+
+    def setFlacFormat(self):
+
+        self.AudFormat = '.flac'
+        print(self.AudFormat)
+
+    def changeTags(self):
+
+        tracks = self.TrackTitleTxtEdt.toPlainText()
+        nbr_titles = (len(tracks.split('\n')))
+        nbr_files = (self.TrackTitleLstBx.count())
+        print(nbr_titles)
+        print(nbr_files)
+        
+        with open(r'C:\Users\elnivir\Documents\Kod\tagrenamer\tagrenamer\test.txt', 'w') as tstplk:
+            for i in range(self.TrackTitleLstBx.count()):
+                abc = self.TrackTitleLstBx.item(i).text()
+                print(abc)
+                tstplk.write(abc)
+
+        if nbr_titles == nbr_files:
+
+            pass
+
+        else:
+            self.ErrorDialog.exec()
+
+    def changeMp3Tags():
+
+        pass
+
+    def changeFlacTags():
+
+        pass
+
+def main():
 
     app = QApplication(sys.argv)
     ex = Gui()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+
+    main()
