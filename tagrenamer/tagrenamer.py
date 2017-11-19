@@ -63,19 +63,31 @@ class Gui(QWidget):
         self.DirPathLnEd.setReadOnly(True)
         self.DirPathLnEd.textChanged.connect(self.readDir)
 
-        self.OrigArtistLbl = QLabel('Original artist')
+        self.OrigArtistChkBx = QCheckBox('Original artist')
+        self.OrigArtistChkBx.clicked.connect(lambda: self.OrigArtistLnEd.setEnabled(self.OrigArtistChkBx.isChecked()))
         self.OrigArtistLnEd = QLineEdit()
-        self.PerfArtistLbl = QLabel('Performing artist')
+        self.OrigArtistLnEd.setEnabled(False)
+        self.PerfArtistChkBx = QCheckBox('Performing artist')
+        self.PerfArtistChkBx.clicked.connect(lambda: self.PerfArtistLnEd.setEnabled(self.PerfArtistChkBx.isChecked()))
         self.PerfArtistLnEd = QLineEdit()
-        self.AlbumTitleLbl = QLabel('Album title')
+        self.PerfArtistLnEd.setEnabled(False)
+        self.AlbumTitleChkBx = QCheckBox('Album title')
+        self.AlbumTitleChkBx.clicked.connect(lambda: self.AlbumTitleLnEd.setEnabled(self.AlbumTitleChkBx.isChecked()))
         self.AlbumTitleLnEd = QLineEdit()
-        self.YearLbl = QLabel('Year')
+        self.AlbumTitleLnEd.setEnabled(False)
+        self.YearChkBx = QCheckBox('Year')
+        self.YearChkBx.clicked.connect(lambda: self.YearLnEd.setEnabled(self.YearChkBx.isChecked()))
         self.YearLnEd = QLineEdit()
-        self.GenreLbl = QLabel('Genre')
+        self.YearLnEd.setEnabled(False)
+        self.GenreChkBx = QCheckBox('Genre')
+        self.GenreChkBx.clicked.connect(lambda: self.GenreLnEd.setEnabled(self.GenreChkBx.isChecked()))
         self.GenreLnEd = QLineEdit()
+        self.GenreLnEd.setEnabled(False)
 
-        self.TrackTitleLbl = QLabel('Track titles')
+        self.TrackTitleChkBx = QCheckBox('Track titles')
+        self.TrackTitleChkBx.clicked.connect(lambda: self.TrackTitleTxtEdt.setEnabled(self.TrackTitleChkBx.isChecked()))
         self.TrackTitleTxtEdt = QTextEdit()
+        self.TrackTitleTxtEdt.setEnabled(False)
         self.TrackTitleTxtEdt.setStyleSheet('font: 10.5pt;')
         self.TrackLstLbl = QLabel('Track list')
         self.TrackTitleLstBx = QListWidget()
@@ -94,18 +106,18 @@ class Gui(QWidget):
         self.DirHBox.addWidget(self.SelectDirBtn)
         self.DirHBox.addWidget(self.DirPathLnEd)
 
-        self.MiscDataVBox.addWidget(self.OrigArtistLbl)
+        self.MiscDataVBox.addWidget(self.OrigArtistChkBx)
         self.MiscDataVBox.addWidget(self.OrigArtistLnEd)
-        self.MiscDataVBox.addWidget(self.PerfArtistLbl)
+        self.MiscDataVBox.addWidget(self.PerfArtistChkBx)
         self.MiscDataVBox.addWidget(self.PerfArtistLnEd)
-        self.MiscDataVBox.addWidget(self.AlbumTitleLbl)
+        self.MiscDataVBox.addWidget(self.AlbumTitleChkBx)
         self.MiscDataVBox.addWidget(self.AlbumTitleLnEd)
-        self.MiscDataVBox.addWidget(self.YearLbl)
+        self.MiscDataVBox.addWidget(self.YearChkBx)
         self.MiscDataVBox.addWidget(self.YearLnEd)
-        self.MiscDataVBox.addWidget(self.GenreLbl)
+        self.MiscDataVBox.addWidget(self.GenreChkBx)
         self.MiscDataVBox.addWidget(self.GenreLnEd)
 
-        self.TitleVBox.addWidget(self.TrackTitleLbl)
+        self.TitleVBox.addWidget(self.TrackTitleChkBx)
         self.TitleVBox.addWidget(self.TrackTitleTxtEdt)
 
         self.FilesVBox.addWidget(self.TrackLstLbl)
@@ -157,27 +169,25 @@ class Gui(QWidget):
         print(nbr_titles)
         print(nbr_files)
         
-        with open(r'C:\Users\elnivir\Documents\Kod\tagrenamer\tagrenamer\test.txt', 'w') as tstplk:
+        if (nbr_titles == nbr_files) or TrackTitleChkBx.isEnabled():
+
             for i in range(self.TrackTitleLstBx.count()):
-                abc = self.TrackTitleLstBx.item(i).text()
-                print(abc)
-                tstplk.write(abc)
-
-        if nbr_titles == nbr_files:
-
-            pass
+                TrkTtl = self.TrackTitleLstBx.item(i).text()
+                file = os.path.abspath(os.path.join(self.DirPathLnEd.text(), TrkTtl))
+                print(file)
 
         else:
             self.ErrorDialog.exec()
 
-    def changeMp3Tags():
+    def changeMp3Tags(self):
 
         pass
 
-    def changeFlacTags():
+    def changeFlacTags(self):
 
         pass
 
+        
 def main():
 
     app = QApplication(sys.argv)
