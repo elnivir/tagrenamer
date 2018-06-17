@@ -7,26 +7,19 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QRadioBu
                              QLineEdit, QPushButton, QListWidget, QApplication, QTextEdit,
                              QFileDialog, QMessageBox, QAbstractItemView)
 
+
 class Gui(QWidget):
-    """Klasa zawierająca GUI projektu"""
+    """Main class of the project"""
 
     def __init__(self):
 
         super().__init__()
 
         self.AudFormat = '.mp3'
-        '''self.ChangeFileName = False
-        self.AddNumeration = False
-        self.DirPath = None
-        self.OrigArtist = None
-        self.PerfArtist = None
-        self.AlbumTitle = None
-        self.Year = None
-        self.Genre = None'''
-
         self.createUI()
 
     def createUI(self):
+        """Function  which creates GUI"""
 
         self.MainVBox = QVBoxLayout()
         self.OptionsHBox = QHBoxLayout()
@@ -49,6 +42,7 @@ class Gui(QWidget):
         self.setLayout(self.MainVBox)
 
         self.Mp3ChoiceRdBtn = QRadioButton('Mp3')
+        self.Mp3ChoiceRdBtn.setChecked(True)
         self.Mp3ChoiceRdBtn.clicked.connect(self.setMp3Format)
         self.Mp3ChoiceRdBtn.clicked.connect(self.readDir)
         self.FlacChoiceRdBtn = QRadioButton('Flac')
@@ -131,16 +125,18 @@ class Gui(QWidget):
 
         self.setGeometry(300, 300, 800, 600)
         self.setWindowTitle('Tag renamer')
+
         self.show()
 
     def selectDir(self):
+        """Function creating dialog to change directory"""
 
         dialog = QFileDialog()
         folder_path = dialog.getExistingDirectory(None, "Select directory")
         self.DirPathLnEd.setText(folder_path)
 
     def readDir(self):
-
+        """Function to find files in directory"""
         self.TrackTitleLstBx.clear()
         if self.DirPathLnEd.text() == '':
             pass
@@ -148,46 +144,65 @@ class Gui(QWidget):
             for file in os.listdir(self.DirPathLnEd.text()):
                 if file.endswith(self.AudFormat):
                     self.TrackTitleLstBx.addItem(file)
-        print(self.DirPathLnEd.text())
-        print('==========================')
 
     def setMp3Format(self):
 
         self.AudFormat = '.mp3'
-        print(self.AudFormat)
 
     def setFlacFormat(self):
 
         self.AudFormat = '.flac'
-        print(self.AudFormat)
 
     def changeTags(self):
+        """Function that changes contents of IDv3 tag"""
 
         tracks = self.TrackTitleTxtEdt.toPlainText()
         nbr_titles = (len(tracks.split('\n')))
         nbr_files = (self.TrackTitleLstBx.count())
-        print(nbr_titles)
-        print(nbr_files)
-        
-        if (nbr_titles == nbr_files) or TrackTitleChkBx.isEnabled():
+        trackLst = tracks.split("\n")
+
+        if (nbr_titles == nbr_files) or (self.TrackTitleTxtEdt.isEnabled() is False):
 
             for i in range(self.TrackTitleLstBx.count()):
-                TrkTtl = self.TrackTitleLstBx.item(i).text()
-                file = os.path.abspath(os.path.join(self.DirPathLnEd.text(), TrkTtl))
-                print(file)
+
+                currentTrk = self.TrackTitleLstBx.item(i).text()
+                fileName = os.path.abspath(os.path.join(self.DirPathLnEd.text(), currentTrk))
+
+                if self.Mp3ChoiceRdBtn.isChecked() is True:
+                    file = EasyMP3(fileName)
+                else:
+                    file = FLAC(fileName)
+
+                if self.OrigArtistChkBx.isChecked():
+                    file['artist'] = self.OrigArtistLnEd.text()
+
+                if self.PerfArtistChkBx.isChecked():
+                    file['albumartist'] = self.PerfArtistLnEd.text()
+
+                if self.AlbumTitleChkBx.isChecked():
+                    file['album'] = self.AlbumTitleLnEd.text()
+
+                if self.YearChkBx.isChecked():
+                    file['date'] = self.YearLnEd.text()
+
+                if self.GenreChkBx.isChecked:
+                    file['genre'] = self.GenreLnEd.text()
+
+                if self.TrackTitleChkBx.isChecked():
+                    file['title'] = trackLst[i]
+
+                if self.AddNumerationChkBx.isChecked():
+                    file['tracknumber'] = str(i+1)
+
+                file.save()
+                if self.ChangeFileNameChkBx.isChecked():
+                    os.rename(os.path.join(self.DirPathLnEd.text(), currentTrk), os.path.join(self.DirPathLnEd.text(),
+                              "{0:02d} ".format(int(file['tracknumber'][0])) + file['title'][0]) + self.AudFormat)
 
         else:
             self.ErrorDialog.exec()
 
-    def changeMp3Tags(self):
 
-        pass
-
-    def changeFlacTags(self):
-
-        pass
-
-        
 def main():
 
     app = QApplication(sys.argv)
